@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter
 from fastapi import Depends
 from config import SessionLocal
 from sqlalchemy.orm import Session
-from schemas import WeatherInfoSchema, Request, Response, RequestWeatherInfo
+from schemas import Response, RequestWeatherInfo
 
 import crud
 
@@ -51,4 +51,3 @@ async def update_info_predicted_temperature(request: RequestWeatherInfo, db: Ses
                                               temperature_mlp=request.parameter.temperature_mlp,
                                               temperature_gru=request.parameter.temperature_gru)
     return Response(status="Ok", code="200", message="Success update data", result=_info)
-
