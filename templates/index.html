@@ -9,81 +9,17 @@
           crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
     <title>Real-Time Charts With FastApi</title>
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-10 mx-auto md-5">
-                <canvas id="myChart" width="400" height="200"></canvas>
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col-8 mx-auto md-5">
+            <canvas id="mlpChart" width="200" height="100"></canvas>
         </div>
     </div>
-
-<script>
-    $(document).ready(function () {
-        const config = {
-            type: 'line',
-            data: {
-                labels: Array(30).fill("0000-00-00 00:00:00"),
-                datasets: [{
-                    label: "Random Dataset",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    data: Array(30).fill(null),
-                    fill: false,
-                }],
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Creating Real-Time Charts with Flask'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
-                    }]
-                }
-            }
-        };
-
-        const context = document.getElementById('myChart').getContext('2d');
-
-        const lineChart = new Chart(context, config);
-
-        const source = new EventSource("/chart-data");
-
-        source.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (config.data.labels.length === 30) {
-                config.data.labels.shift();
-                config.data.datasets[0].data.shift();
-            }
-            config.data.labels.push(data.time);
-            config.data.datasets[0].data.push(data.value);
-            lineChart.update();
-        }
-    });
-</script>
+</div>
+<script type="text/javascript" src="../static/charts.js"></script>
 </body>
 </html>

@@ -26,6 +26,7 @@ async def get_all_info(db: Session = Depends(get_db)):
 @router.get("/today")
 async def get_info_for_today(db: Session = Depends(get_db)):
     _info = crud.get_info_for_today(db)
+    _info = sorted(_info, key=lambda x: x.weather_date)
     return Response(status="Ok", code="200", message="Success fetch data for today", result=_info)
 
 
