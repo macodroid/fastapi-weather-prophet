@@ -51,26 +51,29 @@ def create_weather_info(db: Session, info: WeatherInfoSchema):
     return _info
 
 
-def update_actual_temperature(db: Session, weather_date: datetime, actual_temperature: float):
-    _info = get_info_by_date(db=db, weather_date=weather_date)
+def update_current_weather_info(db: Session, weather_info: WeatherInfoSchema):
+    _info = get_info_by_date(db=db, weather_date=weather_info.weather_date)
 
-    _info.actual_temperature = actual_temperature
+    _info.actual_temperature = weather_info.actual_temperature
+    _info.humidity = weather_info.humidity
+    _info.pressure = weather_info.pressure
+    _info.wind_speed = weather_info.wind_speed
 
     db.commit()
     db.refresh(_info)
     return _info
 
 
-def update_predicted_temperature(db: Session, weather_date: datetime,
-                                 temperature_baseline: float,
-                                 temperature_mlp: float,
-                                 temperature_gru: float):
-    _info = get_info_by_date(db=db, weather_date=weather_date)
+def add_predicted_temperature(db: Session, weather_date: datetime,
+                              temperature_baseline: float,
+                              temperature_mlp: float,
+                              temperature_gru: float):
+    _info = WeatherInfo(weather_date=weather_date,
+                        temperature_baseline=temperature_baseline,
+                        temperature_mlp=temperature_mlp,
+                        temperature_gru=temperature_gru)
 
-    _info.temperature_baseline = temperature_baseline
-    _info.temperature_baseline = temperature_mlp
-    _info.temperature_baseline = temperature_gru
-
+    db.add(_info)
     db.commit()
     db.refresh(_info)
     return _info

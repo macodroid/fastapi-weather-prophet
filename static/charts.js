@@ -2,19 +2,20 @@ let actual_temperature = [];
 let baseline_temperature = [];
 let mlp_temperature = [];
 let gru_temperature = [];
+let yTime = [];
 
 async function get_data() {
     await get_temperature();
 }
 
-function create_label() {
-    let hours = [];
-    for (let i = 0; i < 24; i++) {
-        let hour = i < 10 ? '0' + i : i;
-        hours.push(hour + ':00');
-    }
-    return hours;
-}
+// function create_label() {
+//     let hours = [];
+//     for (let i = 0; i < 24; i++) {
+//         let hour = i < 10 ? '0' + i : i;
+//         hours.push(hour + ':00');
+//     }
+//     return hours;
+// }
 
 function draw_chart() {
     let contextMLP = document.getElementById('myChart').getContext('2d');
@@ -22,7 +23,7 @@ function draw_chart() {
     let chart_settings = {
         type: 'line',
         data: {
-            labels: create_label(),
+            labels: yTime,
             datasets: [
                 {
                     label: "Actual Temperature",
@@ -83,11 +84,13 @@ function draw_chart() {
         const data = JSON.parse(event.data);
 
         if (baseline_temperature.length >= 24) {
+            chart_settings.labels = [];
             chart_settings.data.datasets[0].data = [];
             chart_settings.data.datasets[1].data = [];
             myChart.update();
         }
 
+        yTime.push(data['weather_date']);
         chart_settings.data.datasets[0].data.push(data['actual_temperature']);
         chart_settings.data.datasets[1].data.push(data['baseline_temperature']);
         myChart.update();
@@ -106,7 +109,8 @@ async function get_temperature() {
         actual_temperature.push(obj.actual_temperature);
         baseline_temperature.push(obj.temperature_baseline);
         mlp_temperature.push(obj.temperature_mlp);
-        gru_temperature.push(obj.temperature_gru);
+        gru_temperature.push(obj.temperature_gru)
+        yTime.push(obj.weather_date);
     }
 }
 
