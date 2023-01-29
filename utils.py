@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 
 
-def process_weather_data(weather_info: list, mean: float, std: float):
+def process_weather_data(weather_info: list):
     weather_data = get_df_weather_data(weather_info)
-    feature = create_features(weather_data, mean, std)
+    feature = create_features(weather_data)
     return feature
 
 
@@ -17,7 +17,7 @@ def get_df_weather_data(weather_info: list):
     return pd.DataFrame(weather_data)
 
 
-def create_features(weather_data: pd.DataFrame, mean: float, std: float):
+def create_features(weather_data: pd.DataFrame):
     weather_data.sort_values(by='weather_date', inplace=True)
     weather_data = add_day_of_year(weather_data)
     weather_data = add_time_columns(weather_data)
@@ -35,8 +35,6 @@ def create_features(weather_data: pd.DataFrame, mean: float, std: float):
             "wind_speed",
         ]
     ]
-    # normalize data
-    weather_data = (weather_data - mean) / std
     return weather_data
 
 
@@ -86,12 +84,6 @@ def encode_cyclic_data(weather_data: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_data(weather_data: pd.DataFrame, mean: float = None, std: float = None):
-    if (mean is None) and (std is None):
-        mean = weather_data.mean()
-        weather_data -= mean
-        std = weather_data.std()
-        weather_data /= std
-        return weather_data, mean, std
     weather_data -= mean
     weather_data /= std
     return weather_data

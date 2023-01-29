@@ -17,25 +17,34 @@ function create_label() {
 }
 
 function draw_chart() {
-    const contextMLP = document.getElementById('mlpChart').getContext('2d');
+    const contextMLP = document.getElementById('myChart').getContext('2d');
 
-    const mlpChart = new Chart(contextMLP, {
+    let chart_settings = {
         type: 'line',
         data: {
             labels: create_label(),
-            datasets: [{
-                label: "Random Dataset",
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: actual_temperature,
-                fill: false,
-            }],
+            datasets: [
+                {
+                    label: "Actual Temperature",
+                    backgroundColor: 'rgb(146,255,99)',
+                    borderColor: 'rgb(146,255,99)',
+                    data: actual_temperature,
+                    fill: false,
+                },
+                {
+                    label: "Baseline Temperature",
+                    backgroundColor: 'rgb(0,33,220)',
+                    borderColor: 'rgb(0,33,220)',
+                    data: baseline_temperature,
+                    fill: false,
+                }
+            ],
         },
         options: {
             responsive: true,
             title: {
                 display: true,
-                text: 'Creating Real-Time Charts with Flask'
+                text: 'Real Time Weather Forecast'
             },
             tooltips: {
                 mode: 'index',
@@ -65,7 +74,18 @@ function draw_chart() {
                 }]
             }
         }
-    });
+    }
+    let myChart = new Chart(contextMLP, chart_settings);
+
+    const source = new EventSource("/temperature-data");
+
+    source.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        chart_settings.data.datasets[0].data.push(data['actual_temperature']);
+        chart_settings.data.datasets[1].data.push(data['baseline_temperature']);
+        myChart.update();
+    }
 }
 
 async function get_temperature() {
@@ -83,4 +103,7 @@ async function get_temperature() {
     }
 }
 
-get_data().then(() => {draw_chart()});
+
+get_data().then(() => {
+    draw_chart()
+});

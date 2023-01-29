@@ -1,4 +1,8 @@
+import json
+import random
 from datetime import datetime
+
+import pandas as pd
 
 import crud
 from config import SessionLocal
@@ -17,10 +21,21 @@ def weather_forcasting():
     try:
         # get_openweather_data(db)
         window_weather_info = get_window_weather_data(db)
-        weather_info = helper.process_weather_data(window_weather_info)
-        feature = np.asarray(weather_info)
-
+        weather_features = helper.process_weather_data(window_weather_info)
+        baseline_prediction = baseline_temperature_prediction(weather_features)
+        norm_weather_features = np.array((weather_features - data_mean) / data_std)
+        mlp_prediction = mlp_temperature_prediction(norm_weather_features)
+        gru_prediction = gru_temperature_prediction(norm_weather_features)
         db.close()
+        stream_data = json.dumps(
+            {
+                "actual_temperature": random.randint(-5, 5),
+                "baseline_temperature": random.randint(-5, 5),
+                "mlp_temperature": random.randint(-5, 5),
+                "gru_temperature": random.randint(-5, 5)
+            }
+        )
+        yield f"data:{stream_data}\n\n"
     except Exception as e:
         print(e)
 
@@ -57,13 +72,15 @@ def get_window_weather_data(db_session: SessionLocal):
         print(e)
 
 
-def create_temperature_prediction_baseline(weather_info: np.array):
-    pass
+def baseline_temperature_prediction(weather_info: pd.DataFrame):
+    baseline_prediction = weather_info["actual_temperature"].mean() + 1
+    return baseline_prediction
 
 
-def create_temperature_prediction_mlp():
-    pass
+def mlp_temperature_prediction(weather_info: np.array):
+    # TODO add mlp model
+    return random.randint(-5, 5)
 
 
-def create_temperature_prediction_gru():
-    pass
+def gru_temperature_prediction(weather_info: np.array):
+    return random.randint(-5, 5)
