@@ -1,0 +1,10 @@
+uvicorn[standard]
+sqlalchemy
+fastapi
+fastapi-utils
+numpy
+pandas
+requests
+torch
+psycopg2-binary
+jinja2
