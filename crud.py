@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from models import WeatherInfo
 from schemas import WeatherInfoSchema
-from sqlalchemy import func
 
 
 def get_info(db: Session):
@@ -16,6 +17,11 @@ def get_info_for_today(db: Session):
     end = start + timedelta(1)
     return db.query(WeatherInfo).filter(func.date(WeatherInfo.weather_date) >= start,
                                         func.date(WeatherInfo.weather_date) < end).all()
+
+
+def get_info_for_specific_range(db: Session, start_date: datetime, end_date: datetime):
+    return db.query(WeatherInfo).filter(func.date(WeatherInfo.weather_date) >= start_date,
+                                        func.date(WeatherInfo.weather_date) < end_date).all()
 
 
 def get_info_by_date(db: Session, weather_date: datetime):

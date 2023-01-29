@@ -82,6 +82,12 @@ function draw_chart() {
     source.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
+        if (baseline_temperature.length >= 24) {
+            chart_settings.data.datasets[0].data = [];
+            chart_settings.data.datasets[1].data = [];
+            myChart.update();
+        }
+
         chart_settings.data.datasets[0].data.push(data['actual_temperature']);
         chart_settings.data.datasets[1].data.push(data['baseline_temperature']);
         myChart.update();
@@ -89,7 +95,8 @@ function draw_chart() {
 }
 
 async function get_temperature() {
-    const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/today";
+    // const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/today";
+    const apiUrl = "http://localhost:8000/weather/today";
 
     const response = await fetch(apiUrl)
     const weather_data = await response.json()
@@ -103,7 +110,7 @@ async function get_temperature() {
     }
 }
 
-
 get_data().then(() => {
     draw_chart()
 });
+

@@ -29,6 +29,9 @@ async def get_info_for_today(db: Session = Depends(get_db)):
     _info = sorted(_info, key=lambda x: x.weather_date)
     return Response(status="Ok", code="200", message="Success fetch data for today", result=_info)
 
+@router.get("/today/")
+async def get_info_for_today(db: Session = Depends(get_db)):
+    pass
 
 @router.post("/create")
 async def add_weather_info(request: RequestWeatherInfo, db: Session = Depends(get_db)):
