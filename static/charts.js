@@ -17,7 +17,7 @@ function create_label() {
 }
 
 function draw_chart() {
-    const contextMLP = document.getElementById('myChart').getContext('2d');
+    let contextMLP = document.getElementById('myChart').getContext('2d');
 
     let chart_settings = {
         type: 'line',

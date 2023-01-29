@@ -19,7 +19,7 @@ def get_info_for_today(db: Session):
                                         func.date(WeatherInfo.weather_date) < end).all()
 
 
-def get_info_for_specific_range(db: Session, start_date: datetime, end_date: datetime):
+def get_info_in_date_range(db: Session, start_date: datetime, end_date: datetime):
     return db.query(WeatherInfo).filter(func.date(WeatherInfo.weather_date) >= start_date,
                                         func.date(WeatherInfo.weather_date) < end_date).all()
 

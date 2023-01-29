@@ -1,5 +1,14 @@
+from datetime import datetime, date
+
+from pydantic import BaseModel
 from sqlalchemy import Column, DateTime, Float
+
 from config import Base
+
+
+class WeatherRange(BaseModel):
+    start_date: date
+    end_date: date
 
 
 class WeatherInfo(Base):
