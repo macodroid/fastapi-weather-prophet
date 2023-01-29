@@ -24,7 +24,7 @@ def get_info_by_date(db: Session, weather_date: datetime):
 
 def get_info_for_last_window_hours(db: Session, window_hours: int):
     today = datetime.now().date()
-    start = datetime(today.year, today.month, today.day, datetime.now().hour) - timedelta(hours=window_hours-1)
+    start = datetime(today.year, today.month, today.day, datetime.now().hour) - timedelta(hours=window_hours - 1)
     end = datetime(today.year, today.month, today.day, datetime.now().hour)
     return db.query(WeatherInfo).filter(WeatherInfo.weather_date >= start,
                                         WeatherInfo.weather_date <= end).all()

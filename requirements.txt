@@ -8,3 +8,4 @@ requests
 torch
 psycopg2-binary
 jinja2
+pydantic

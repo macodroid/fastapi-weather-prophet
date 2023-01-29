@@ -2,24 +2,25 @@ import json
 import random
 from datetime import datetime
 
-import pandas as pd
-
-import crud
-from config import SessionLocal
-import requests
 import numpy as np
-import utils as helper
+import pandas as pd
+import requests
 
+import config
+import crud
+import utils as helper
+from config import SessionLocal
 from schemas import WeatherInfoSchema
 
 # loading data just once
 data_mean, data_std = np.load('data/stat.npy')
+envs = config.Settings()
 
 
 def weather_forcasting():
     db = SessionLocal()
     try:
-        # get_openweather_data(db)
+        act_temperature = get_openweather_data(db)
         window_weather_info = get_window_weather_data(db)
         weather_features = helper.process_weather_data(window_weather_info)
         baseline_prediction = baseline_temperature_prediction(weather_features)
@@ -29,8 +30,8 @@ def weather_forcasting():
         db.close()
         stream_data = json.dumps(
             {
-                "actual_temperature": random.randint(-5, 5),
-                "baseline_temperature": random.randint(-5, 5),
+                "actual_temperature": act_temperature,
+                "baseline_temperature": baseline_prediction,
                 "mlp_temperature": random.randint(-5, 5),
                 "gru_temperature": random.randint(-5, 5)
             }
@@ -42,7 +43,8 @@ def weather_forcasting():
 
 def get_openweather_data(db_session: SessionLocal):
     try:
-        url = "https://api.openweathermap.org/data/2.5/weather?lat=48.171704276327475&lon=17.211020714029374&units=metric&appid=3ae431bd06e079d061c5dd76a9ee5dbc"
+        url = f"https://api.openweathermap.org/data/2.5/weather?" \
+              f"lat=48.171704276327475&lon=17.211020714029374&units=metric&appid={envs.OPEN_WEATHER_API_KEY}"
         payload = {}
         headers = {}
         response = requests.request("GET", url, headers=headers, data=payload)
@@ -54,6 +56,7 @@ def get_openweather_data(db_session: SessionLocal):
         weather_info.pressure = response.json()["main"]["pressure"]
         weather_info.wind_speed = response.json()["wind"]["speed"]
         insert_actual_temperature(db_session, weather_info)
+        return weather_info.actual_temperature
     except Exception as e:
         print(e)
 
