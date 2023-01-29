@@ -44,13 +44,16 @@ async function get_temperature() {
         baseline_temperature.push(obj.temperature_baseline);
         mlp_temperature.push(obj.temperature_mlp);
         gru_temperature.push(obj.temperature_gru)
-        yAxes.push(obj.date)
+        yAxes.push(obj.weather_date)
     }
 }
 
 function draw_history_chart() {
     let historyContext = document.getElementById('historyChart').getContext('2d');
-
+    let chartStatus = Chart.getChart("historyChart");
+    if (chartStatus != undefined) {
+        chartStatus.destroy();
+    }
     let history_chart_settings = {
         type: 'line',
         data: {
