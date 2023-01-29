@@ -17,6 +17,7 @@ data_mean, data_std = np.load('data/stat.npy')
 envs = config.Settings()
 
 
+# TODO insert data to database
 def weather_forcasting():
     db = SessionLocal()
     try:
