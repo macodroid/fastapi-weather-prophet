@@ -94,7 +94,7 @@ function draw_chart() {
 }
 
 async function get_temperature() {
-    const apiUrl = "`https://fastapi-weather-prophet-production.up.railway.app`/weather/today";
+    const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/today";
     // const apiUrl = "http://localhost:8000/weather/today";
 
     const response = await fetch(apiUrl)
