@@ -18,8 +18,8 @@ function func() {
 }
 
 async function get_temperature() {
-    // const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/history";
-    const apiUrl = "http://localhost:8000/weather/history";
+    const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/history";
+    //const apiUrl = "http://localhost:8000/weather/history";
     const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -72,6 +72,20 @@ function draw_history_chart() {
                     borderColor: 'rgb(0,33,220)',
                     data: baseline_temperature,
                     fill: false,
+                },
+                {
+                    label: "MLP Temperature",
+                    backgroundColor: 'rgb(255,249,0)',
+                    borderColor: 'rgb(255,249,0)',
+                    data: mlp_temperature,
+                    fill: false,
+                },
+                {
+                    label: "GRU Temperature",
+                    backgroundColor: 'rgb(220,0,0)',
+                    borderColor: 'rgb(220,0,0)',
+                    data: gru_temperature,
+                    fill: false,
                 }
             ],
         },
@@ -111,6 +125,5 @@ function draw_history_chart() {
         }
     }
     let anotherChart = new Chart(historyContext, history_chart_settings);
-    console.log("dasdasdasdasd")
 }
 

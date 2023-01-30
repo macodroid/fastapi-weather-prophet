@@ -1,21 +1,41 @@
-import json
-import random
 from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 import requests
+import torch
+from fastapi.logger import logger
 
 import config
 import crud
 import utils as helper
 from config import SessionLocal
-from main import logger
 from schemas import WeatherInfoSchema
 
 # loading data just once
+device = torch.device('cpu')
 data_mean, data_std = np.load('data/stat.npy')
+mlp_model = torch.jit.load('ml_models/mlp_jit_L1.pt', map_location=device)
+mlp_model.eval()
+gru_model = torch.jit.load('ml_models/gru_jit_128_4_L1_final.pt', map_location=device)
+gru_model.eval()
 envs = config.Settings()
+
+
+# we will not stream data to frontend. Instead we will insert data to database
+# def stream_weather_data():
+#     data = weather_forcasting()
+#     if data is None:
+#         return
+#     stream_data = json.dumps(
+#         {
+#             "actual_temperature": data["actual_temperature"],
+#             "baseline_temperature": data["baseline_temperature"],
+#             "mlp_temperature": data["mlp_temperature"],
+#             "gru_temperature": data["gru_temperature"],
+#             "weather_date": data["weather_date"]
+#         })
+#     yield f"data:{stream_data}\n\n"
 
 
 # TODO insert data to database
@@ -23,9 +43,9 @@ def weather_forcasting():
     db = SessionLocal()
     date = datetime.now()
     current_weather_date = datetime(date.year, date.month, date.day, date.hour)
-    weather_date_one_hour_ago = current_weather_date - timedelta(hours=1)
+    weather_date_one_hour_ahead = current_weather_date + timedelta(hours=1)
     try:
-        get_openweather_data(db, weather_date=current_weather_date)
+        act_temperature = get_openweather_data(db, weather_date=current_weather_date)
         window_weather_info = get_window_weather_data(db)
         weather_features = helper.process_weather_data(window_weather_info)
         baseline_prediction = baseline_temperature_prediction(weather_features)
@@ -34,27 +54,17 @@ def weather_forcasting():
         gru_prediction = gru_temperature_prediction(norm_weather_features)
         logger.info(
             f"Creating new row with predictions: "
-            f"{baseline_prediction}, {mlp_prediction}, {gru_prediction} for date: {weather_date_one_hour_ago}.")
-        add_temperature_prediction(db, weather_date_one_hour_ago, baseline_prediction, mlp_prediction, gru_prediction)
+            f"{baseline_prediction}, {mlp_prediction}, {gru_prediction} for date: {weather_date_one_hour_ahead}.")
+        add_temperature_prediction(db, weather_date_one_hour_ahead, baseline_prediction, mlp_prediction,
+                                   gru_prediction)
         logger.info("New record with predictions was created.")
         db.close()
-        # stream_data = json.dumps(
-        #     {
-        #         "actual_temperature": act_temperature,
-        #         "baseline_temperature": baseline_prediction,
-        #         "mlp_temperature": random.randint(-5, 5),
-        #         "gru_temperature": random.randint(-5, 5)
-        #     }
-        # )
-        stream_data = json.dumps(
-            {
-                "actual_temperature": random.randint(-5, 5),
-                "baseline_temperature": random.randint(-5, 5),
-                "mlp_temperature": random.randint(-5, 5),
-                "gru_temperature": random.randint(-5, 5),
-                "weather_date": weather_date_one_hour_ago
-            })
-        yield f"data:{stream_data}\n\n"
+        return {
+            "actual_temperature": act_temperature,
+            "baseline_temperature": baseline_prediction,
+            "mlp_temperature": mlp_prediction,
+            "gru_temperature": gru_prediction,
+        }
     except Exception as e:
         print(e)
 
@@ -109,13 +119,19 @@ def baseline_temperature_prediction(weather_info: pd.DataFrame):
     return baseline_prediction
 
 
-def mlp_temperature_prediction(weather_info: np.array):
-    # TODO add mlp model
-    return random.randint(-5, 5)
+def mlp_temperature_prediction(weather_features: np.array):
+    features = np.reshape(weather_features, (1, 6, 8))
+    features = torch.from_numpy(features).float().to(device)
+    prediction = mlp_model(features)
+    return float(prediction.detach().numpy()[0][0][0])
 
 
-def gru_temperature_prediction(weather_info: np.array):
-    return random.randint(-5, 5)
+def gru_temperature_prediction(weather_features: np.array):
+    features = np.reshape(weather_features, (1, 6, 8))
+    features = torch.from_numpy(features).float().to(device)
+    h0 = torch.zeros(2, 6, 128).to(device)
+    prediction = gru_model(features, h0)
+    return float(prediction.detach().numpy()[0][0])
 
 
 def add_temperature_prediction(db_session: SessionLocal, weather_date, baseline, mlp, gru):

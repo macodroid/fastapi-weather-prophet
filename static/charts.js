@@ -38,6 +38,20 @@ function draw_chart() {
                     borderColor: 'rgb(0,33,220)',
                     data: baseline_temperature,
                     fill: false,
+                },
+                {
+                    label: "MLP Temperature",
+                    backgroundColor: 'rgb(255,249,0)',
+                    borderColor: 'rgb(255,249,0)',
+                    data: mlp_temperature,
+                    fill: false,
+                },
+                {
+                    label: "GRU Temperature",
+                    backgroundColor: 'rgb(220,0,0)',
+                    borderColor: 'rgb(220,0,0)',
+                    data: gru_temperature,
+                    fill: false,
                 }
             ],
         },
@@ -77,29 +91,11 @@ function draw_chart() {
         }
     }
     let myChart = new Chart(contextMLP, chart_settings);
-
-    const source = new EventSource("/temperature-data");
-
-    source.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-
-        if (baseline_temperature.length >= 24) {
-            chart_settings.labels = [];
-            chart_settings.data.datasets[0].data = [];
-            chart_settings.data.datasets[1].data = [];
-            myChart.update();
-        }
-
-        yTime.push(data['weather_date']);
-        chart_settings.data.datasets[0].data.push(data['actual_temperature']);
-        chart_settings.data.datasets[1].data.push(data['baseline_temperature']);
-        myChart.update();
-    }
 }
 
 async function get_temperature() {
-    // const apiUrl = "https://fastapi-weather-prophet-production.up.railway.app/weather/today";
-    const apiUrl = "http://localhost:8000/weather/today";
+    const apiUrl = "`https://fastapi-weather-prophet-production.up.railway.app`/weather/today";
+    // const apiUrl = "http://localhost:8000/weather/today";
 
     const response = await fetch(apiUrl)
     const weather_data = await response.json()

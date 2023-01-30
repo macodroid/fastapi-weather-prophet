@@ -14,6 +14,8 @@ def get_df_weather_data(weather_info: list):
         data = {"weather_date": info.weather_date, "humidity": info.humidity, "pressure": info.pressure,
                 "wind_speed": info.wind_speed, "actual_temperature": info.actual_temperature}
         weather_data.append(data)
+    weather_df = pd.DataFrame(weather_data)
+    weather_df.sort_values(by='weather_date', inplace=True)
     return pd.DataFrame(weather_data)
 
 
