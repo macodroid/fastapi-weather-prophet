@@ -44,7 +44,7 @@ async def index2(request: Request) -> Response:
 
 
 @app.on_event("startup")
-@repeat_every(seconds=90, wait_first=True)
+@repeat_every(seconds=90, wait_first=False)
 def get_fresh_weather_data():
     now = datetime.now()
     if 0 <= now.minute < 2:

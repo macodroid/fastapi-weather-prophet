@@ -80,7 +80,8 @@ def get_openweather_data(db_session: SessionLocal, weather_date: datetime):
         weather_info.weather_date = weather_date
         weather_info.actual_temperature = response.json()["main"]["temp"]
         weather_info.humidity = response.json()["main"]["humidity"]
-        weather_info.pressure = response.json()["main"]["pressure"]
+        # convert form hPa to mmHg
+        weather_info.pressure = response.json()["main"]["pressure"] * 0.75006156130264
         weather_info.wind_speed = response.json()["wind"]["speed"]
         logger.info("Updating current weather info: ", weather_info.weather_date, " with values: humidity: ",
                     weather_info.humidity, " pressure: ", weather_info.pressure, " wind speed: ",
