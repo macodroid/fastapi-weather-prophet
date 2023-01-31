@@ -12,7 +12,7 @@ def get_info(db: Session):
 
 
 def get_info_for_today(db: Session):
-    today = datetime.now().date()
+    today = datetime.utcnow() + timedelta(hours=1)
     start = datetime(today.year, today.month, today.day)
     end = start + timedelta(1)
     return db.query(WeatherInfo).filter(func.date(WeatherInfo.weather_date) >= start,
@@ -29,9 +29,9 @@ def get_info_by_date(db: Session, weather_date: datetime):
 
 
 def get_info_for_last_window_hours(db: Session, window_hours: int):
-    today = datetime.now().date()
-    start = datetime(today.year, today.month, today.day, datetime.now().hour) - timedelta(hours=window_hours - 1)
-    end = datetime(today.year, today.month, today.day, datetime.now().hour)
+    today = datetime.utcnow() + timedelta(hours=1)
+    start = datetime(today.year, today.month, today.day, today.hour) - timedelta(hours=window_hours - 1)
+    end = datetime(today.year, today.month, today.day, today.hour)
     return db.query(WeatherInfo).filter(WeatherInfo.weather_date >= start,
                                         WeatherInfo.weather_date <= end).all()
 

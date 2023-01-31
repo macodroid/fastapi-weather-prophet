@@ -41,7 +41,7 @@ envs = config.Settings()
 # TODO insert data to database
 def weather_forcasting():
     db = SessionLocal()
-    date = datetime.now()
+    date = datetime.utcnow() + timedelta(hours=1)
     current_weather_date = datetime(date.year, date.month, date.day, date.hour)
     weather_date_one_hour_ahead = current_weather_date + timedelta(hours=1)
     try:

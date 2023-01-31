@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI
 from fastapi.logger import logger
@@ -46,7 +46,8 @@ async def index2(request: Request) -> Response:
 @app.on_event("startup")
 @repeat_every(seconds=90, wait_first=False)
 def get_fresh_weather_data():
-    now = datetime.now()
+    now = datetime.utcnow() + timedelta(hours=1)
     if 0 <= now.minute < 2:
         logger.info("Forcasting new weather data")
         weather_forcasting()
+    weather_forcasting()
