@@ -41,7 +41,7 @@ function draw_chart() {
                 },
                 {
                     label: "MLP Temperature",
-                    backgroundColor: 'rgb(255,249,0)',
+                    backgroundColor: 'rgb(0,0,0)',
                     borderColor: 'rgb(255,249,0)',
                     data: mlp_temperature,
                     fill: false,

@@ -38,6 +38,7 @@ async def get_historical_info(request: WeatherRange, db: Session = Depends(get_d
     start_date = datetime(request.start_date.year, request.start_date.month, request.start_date.day, 0, 0, 0)
     end_date = datetime(request.end_date.year, request.end_date.month, request.end_date.day, 23, 59, 59)
     _info = crud.get_info_in_date_range(db, start_date=start_date, end_date=end_date)
+    _info = sorted(_info, key=lambda x: x.weather_date)
     return Response(status="Ok", code="200", message="Success fetch data for today", result=_info)
 
 
